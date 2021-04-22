@@ -1,0 +1,224 @@
+plugins {
+    id 'org.springframework.boot' version '2.4.0-M3'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+    id 'com.github.spotbugs' version '4.5.0'
+    id 'checkstyle'
+    id 'jacoco'
+}
+apply plugin: "java-library"
+    apply plugin: "idea"
+    apply plugin: "checkstyle"
+    apply plugin: "pmd"
+    apply plugin: "jacoco"
+
+ext {
+    buildId = System.currentTimeMillis()
+}
+group = 'com.crio'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven { url 'https://repo.spring.io/milestone' }
+}
+// subprojects {
+//     // apply plugin: "java-library"
+//     // apply plugin: "idea"
+//     // apply plugin: "checkstyle"
+//     apply plugin: "pmd"
+//     // apply plugin: "jacoco"
+
+//     pmd {
+//         toolVersion = "6.10.0"
+//         sourceSets = [sourceSets.main]
+//         ruleSetFiles = files("${rootProject.projectDir}/__CRIO__/ruleset.xml")
+//         ignoreFailures = true
+//     }
+// }
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation group: "com.google.guava", name: "guava", version: "20.0"
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'mysql:mysql-connector-java'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+    testImplementation 'org.springframework.amqp:spring-rabbit-test'
+}
+
+test {
+    reports {
+        junitXml.enabled = true
+        def destinationDirectory = System.getProperty("user.home") + "/.gradle/daemon/${buildId}/test-results"
+        junitXml.destination = file(destinationDirectory)
+        html.enabled = true
+    }
+    useJUnitPlatform {
+    }
+    testLogging.events ("STANDARD_ERROR")
+    testLogging.events ("STANDARD_OUT")
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println "\nTEST RESULT: ${result.resultType}"
+            println "TEST SUMMARY: RAN ${result.testCount} TESTS, " +
+                    "${result.successfulTestCount} SUCCEEDED, " +
+                    "${result.failedTestCount} FAILED, " +
+                    "${result.skippedTestCount} SKIPPED"
+        }
+    }
+    timeout = Duration.ofMinutes(15)
+}
+
+checkstyle {
+    ignoreFailures = true
+    toolVersion "7.8.1"
+    configFile file("${rootProject.projectDir}/__CRIO__/checkstyle.xml")
+}
+// checkstyleTest.enabled = true
+    
+spotbugsMain {
+    ignoreFailures = true
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+spotbugsTest {
+    ignoreFailures = true
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+pmd {
+        toolVersion = "6.10.0"
+        sourceSets = [sourceSets.main]
+        ruleSetFiles = files("${rootProject.projectDir}/__CRIO__/ruleset.xml")
+        ignoreFailures = true
+    }
+// tasks.with
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+    }
+}
+
+// plugins {
+//     id 'org.springframework.boot' version '2.2.7.RELEASE'
+//     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+//     id 'java'
+//     id 'com.github.spotbugs' version '4.5.0'
+//     id 'checkstyle'
+//     id 'jacoco'
+// }
+
+// apply plugin: "java-library"
+//     apply plugin: "idea"
+//     apply plugin: "checkstyle"
+//     apply plugin: "pmd"
+//     apply plugin: "jacoco"
+
+//     pmd {
+//         toolVersion = "6.10.0"
+//         sourceSets = [sourceSets.main]
+//         ruleSetFiles = files("${rootProject.projectDir}/__CRIO__/ruleset.xml")
+//         ignoreFailures = true
+//     }
+
+// ext {
+//     buildId = System.currentTimeMillis()
+// }
+
+// group = 'com.crio'
+// version = '0.0.1-SNAPSHOT'
+// sourceCompatibility = '1.8'
+
+// configurations {
+//     compileOnly {
+//         extendsFrom annotationProcessor
+//     }
+// }
+
+// repositories {
+//     mavenCentral()
+//     mavenLocal()
+//     maven { url 'https://repo.spring.io/milestone' }
+// }
+
+// dependencies {
+//     implementation 'org.springframework.boot:spring-boot-starter-amqp'
+//     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+//     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+//     implementation 'org.springframework.boot:spring-boot-starter-web'
+//     implementation group: "com.google.guava", name: "guava", version: "20.0"
+//     compileOnly 'org.projectlombok:lombok'
+//     runtimeOnly 'com.h2database:h2'
+//     runtimeOnly 'mysql:mysql-connector-java'
+//     annotationProcessor 'org.projectlombok:lombok'
+//     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//     testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+//     testImplementation 'org.springframework.amqp:spring-rabbit-test'
+
+// }
+
+//  test {
+//         reports {
+//             junitXml.enabled = true
+//             def destinationDirectory = System.getProperty("user.home") + "/.gradle/daemon/${buildId}/test-results"
+//             junitXml.destination = file(destinationDirectory)
+//             html.enabled = true
+//         }
+//         useJUnitPlatform {
+//         }
+//         testLogging.events ("STANDARD_ERROR")
+//         testLogging.events ("STANDARD_OUT")
+//         afterSuite { desc, result ->
+//             if (!desc.parent) {
+//                 println "\nTEST RESULT: ${result.resultType}"
+//                 println "TEST SUMMARY: RAN ${result.testCount} TESTS, " +
+//                         "${result.successfulTestCount} SUCCEEDED, " +
+//                         "${result.failedTestCount} FAILED, " +
+//                         "${result.skippedTestCount} SKIPPED"
+//             }
+//         }
+//         timeout = Duration.ofMinutes(15)
+//     }
+
+//     checkstyle {
+//         ignoreFailures = true
+//         toolVersion "7.8.1"
+//         configFile file("${rootProject.projectDir}/__CRIO__/checkstyle.xml")
+//     }
+   
+
+//     spotbugsMain {
+//         ignoreFailures = true
+//         reports {
+//             xml.enabled = false
+//             html.enabled = true
+//         }
+//     }
+
+
+
+// jacocoTestReport {
+//     reports {
+//         xml.enabled true
+//         csv.enabled false
+//     }
+// }
